@@ -1,0 +1,3 @@
+networks:
+  ecosystem:
+    external: true  # 既に作成されたネットワークを使用する場合
