@@ -47,18 +47,10 @@ services:
 # networksについて
 [networks.yaml](https://github.com/halchil/Nginx-Module/blob/main/Docker%20Compose/networks.yaml)
 
-etworks セクション:
+Docker Composeファイルの networks セクションでは、コンテナ間で通信するために使用するネットワークを定義する。
 
-    Docker Composeファイルの networks セクションでは、コンテナ間で通信するために使用するネットワークを定義します。
-    ネットワークは、複数のコンテナが同じネットワーク内で通信できるようにするための仮想ネットワークです。
+ecosystemはネットワーク名である。
+ここでは、コンテナが接続されるネットワークの名前として ecosystem を指定しています。
 
-ecosystem:
-
-    ecosystemはネットワーク名です。ここでは、コンテナが接続されるネットワークの名前として ecosystem を指定しています。
-
-external: true:
-
-    external: true の設定は、「このネットワークは外部で既に作成されているものなので、Composeはそのネットワークを新たに作成しない」という意味です。
-    つまり、docker-compose up を実行した際に、Composeは ecosystem という名前のネットワークが既に存在していると仮定してそのネットワークを使用します。
-    外部ネットワークを使用する場合、そのネットワークを事前に手動で作成する必要があります。以下のコマンドでネットワークを作成できます：
-    
+`external: true` の設定は、「このネットワークは外部で既に作成されているものなので、Composeはそのネットワークを新たに作成しない」という意味である。
+つまり、docker-compose up を実行した際に、Composeは ecosystem という名前のネットワークが既に存在していると仮定してそのネットワークを使用する。
