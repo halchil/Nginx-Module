@@ -3,9 +3,15 @@
 Docker Compose設定ファイルを分割した。
 各分割したパートは、モジュールと呼ぶ。
 
+# 参考文献
+<!--Docker,Docker Composeのバージョン対比表を入れる -->
+
 
 # versionについて
-[services.yaml](https://github.com/halchil/Nginx-Module/blob/main/Docker%20Compose/version.yaml)
+[version.yaml](https://github.com/halchil/Nginx-Module/blob/main/Docker%20Compose/version.yaml)
+
+docker-composeのversionは、Compose ファイルのフォーマットバージョンを指している。
+Compose ファイルのバージョン: Docker Composeには複数のバージョン(例: 2, 2.1, 3, 3.7, 3.8, など)があり、それぞれのバージョンには特定の機能セットや構文ルールがある
 
 
 # servicesについて
