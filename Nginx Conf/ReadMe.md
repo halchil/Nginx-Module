@@ -40,7 +40,7 @@ nginx はNginxのプロセスが動作する際に使われるLinuxユーザー�
 通常、nginx という専用ユーザーが作成され、そのユーザーの権限でNginxが動作する。
 これにより、Nginxがシステム全体に過度なアクセス権限を持つことを防ぐ。
 
-### 確認方法① ps コマンドを使用する
+### 確認方法1 ps コマンドを使用する
 
 ps コマンドでNginxのプロセスとそれを実行しているユーザーを確認することができます。
 
@@ -53,7 +53,7 @@ nginx      1234  0.0  0.1 123456  1234 ?        Ss   10:00   0:00 nginx: master 
 nginx      1235  0.0  0.1 123456  1234 ?        S    10:00   0:00 nginx: worker process
 ```
 
-###  pgrep と ps を組み合わせる
+### 確認方法2 pgrep と ps を組み合わせる
 
 pgrep を使ってNginxのプロセスIDを取得する。
 
@@ -72,7 +72,7 @@ ps -o user= -p <PID>
 <PID> は pgrep nginx で得られたプロセスIDを指定する。
 
 
-### systemctl で確認する（システムが systemd を使用している場合）
+### 確認方法3 systemctl で確認する（システムが systemd を使用している場合）
 
 systemctl でNginxサービスの実行ユーザーを確認する方法。
 通常、systemd 経由でNginxが起動されている場合は、このコマンドで確認できる。
