@@ -1,7 +1,33 @@
 # はじめに
 nginx.confの設定を行う
 
+nginxのconfファイルは、**Nginx設定ファイル形式**と呼ばれる特別な形式で記載される。
+
+## ディレクティブとセミコロン
+
+設定項目は「ディレクティブ」と呼ばれ、通常はセミコロン（;）で終わります。ディレクティブは設定の具体的な指示を表す。
+
+```
+listen 80;
+server_name localhost;
+
+```
+
+## ブロックとコンテキスト
+
+ディレクティブを階層的に整理するために、「ブロック」が使用される。
+
+ブロックは中括弧 {} で囲まれ、特定のコンテキスト（例えば http、server、location）内で適用される。
+
+## 階層構造
+
+設定は階層的に構造化されており、上位のコンテキストが下位のコンテキストに影響を与える。
+
+例えば、http ブロック内に複数の server ブロックを配置し、各 server ブロック内に複数の location ブロックを配置することができる。
+
+
 # 参考文献
+
 
 # head.yaml
 [head.yaml](https://github.com/halchil/Nginx-Module/blob/main/Nginx%20Conf/head.yaml)
@@ -115,3 +141,181 @@ Nginxの管理操作（再起動、停止など）を行う際に、このファ
 トラブルシューティング: error_log でエラーログの保存先と詳細度を指定し、問題発生時に原因を追跡しやすくする。
 
 プロセス管理: pid ファイルは、Nginxの制御を行うために重要となる。
+
+# http.yaml
+
+## MIMEタイプの設定
+
+```
+include /etc/nginx/mime.types;
+default_type application/octet-stream;
+```
+
+**include /etc/nginx/mime.types;**
+
+このディレクティブは、MIMEタイプの定義ファイルを読み込む。
+
+MIMEタイプ（Multipurpose Internet Mail Extensions）は、ファイルの種類を表すための形式である。
+これは、ウェブサーバーがブラウザに対して「このファイルはどんな種類か」を教える役割を持っている。
+例えば、画像なのか、動画なのか、テキストファイルなのか、ということを伝える。
+
+`mime.types` ファイルには、拡張子とそれに対応するMIMEタイプのマッピングが記述されている。
+
+これにより、Nginxはクライアントに返すコンテンツの種類を適切に設定できる。
+
+`mime.types`がどこにあって、どのような記述なのか気になるので調べてみる。
+
+以下のような形式で記載されている。
+
+最初の列: MIMEタイプ
+次の列: 拡張子（スペースで区切られている場合もあり）
+
+```
+# mime.types
+# 確認できる MIME タイプの定義
+text/html          html htm
+text/css           css
+text/javascript    js
+application/javascript js
+application/json    json
+```
+
+
+**default_type application/octet-stream;**
+
+特定の拡張子に対応するMIMEタイプが見つからない場合に使用されるデフォルトのMIMEタイプを指定する。
+`application/octet-stream` は汎用的なバイナリデータとして扱われます。
+
+
+
+
+
+
+
+
+
+
+
+
+
+## ログフォーマットの設定
+
+nginx
+
+log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                '$status $body_bytes_sent "$http_referer" '
+                '"$http_user_agent" "$http_x_forwarded_for"';
+
+    log_format main ...
+    main という名前のログフォーマットを定義しています。ログには以下の情報が含まれます：
+        $remote_addr: クライアントのIPアドレス
+        $remote_user: 認証されたユーザー名
+        $time_local: リクエストを受けた日時
+        $request: リクエストライン（メソッド、URI、プロトコル）
+        $status: HTTPステータスコード
+        $body_bytes_sent: 送信されたボディのバイト数
+        $http_referer: リファラー情報
+        $http_user_agent: ユーザーエージェント情報
+        $http_x_forwarded_for: プロキシ経由の場合の元のクライアントIPアドレス
+
+## アクセスログの設定
+
+nginx
+
+access_log /var/log/nginx/access.log main;
+
+    access_log /var/log/nginx/access.log main;
+    アクセスログの出力先を /var/log/nginx/access.log に設定し、先ほど定義した main フォーマットを使用します。
+
+## ファイル送信および接続維持の設定
+
+nginx
+
+sendfile on;
+keepalive_timeout 65;
+
+    sendfile on;
+    sendfile を有効にすると、カーネルの sendfile システムコールを使用して高速にファイルを送信できます。これにより、ユーザースペースとカーネルスペース間のデータコピーが削減され、パフォーマンスが向上します。
+
+    keepalive_timeout 65;
+    クライアントとのアイドル状態の接続を65秒間維持します。これにより、同一クライアントからの複数リクエストが同じ接続で処理され、接続の再確立によるオーバーヘッドが減少します。
+
+## サーバーブロックの設定
+
+nginx
+
+server {
+    listen       80;
+    server_name  localhost;
+
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html;
+    }
+
+    error_page  500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+}
+
+    listen 80;
+    サーバーがポート80でリクエストを待ち受けます。ポート80はHTTPのデフォルトポートです。
+
+    server_name localhost;
+    サーバーの名前を localhost に設定します。これにより、localhost というホスト名でアクセスされたリクエストをこのサーバーブロックが処理します。
+
+## ロケーションブロックの設定
+
+nginx
+
+location / {
+    root   /usr/share/nginx/html;
+    index  index.html;
+}
+
+    location / { ... }
+    ルートパス / に対するリクエストを処理します。
+
+        root /usr/share/nginx/html;
+        ドキュメントルートを /usr/share/nginx/html に設定します。つまり、http://localhost/ へのリクエストは /usr/share/nginx/html/index.html を返します。
+
+        index index.html;
+        ディレクトリへのリクエスト（例：http://localhost/）時にデフォルトで index.html を返すよう指定します。
+
+## エラーページの設定
+
+nginx
+
+error_page 500 502 503 504 /50x.html;
+location = /50x.html {
+    root /usr/share/nginx/html;
+}
+
+    error_page 500 502 503 504 /50x.html;
+    サーバー内部エラー（500系エラー）が発生した場合に /50x.html を表示するよう指定します。
+
+    location = /50x.html { ... }
+    /50x.html への正確なリクエストを処理します。
+        root /usr/share/nginx/html;
+        エラーページのファイル 50x.html が /usr/share/nginx/html ディレクトリに存在することを指定します。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ケースに即した確認テスト
+
+## Nginx実行ユーザの指定方法と確認方法
+どういうシチュエーションで必要になるだろうか。
