@@ -30,7 +30,7 @@ server_name localhost;
 
 
 # head.yaml
-[head.yaml](https://github.com/halchil/Nginx-Module/blob/main/Nginx%20Conf/head.yaml)
+[head.conf](https://github.com/halchil/Nginx-Module/blob/main/Nginx%20Conf/head.conf)
 
 ## user nginx
 Nginxがどのユーザー権限で実行されるかを指定する。
@@ -115,12 +115,12 @@ Nginxのエラーログファイルのパスとログレベルを指定する。
 warn は、ログレベルを示している。
 Nginxが記録するエラーログのレベルを制御し、ログレベルには以下の段階がある。
 
-- debug: デバッグ用の詳細なログを記録。
-- info: 情報レベルのログ。
-- notice: 通知レベルのログ。
-- warn: 警告レベルのログ。
-- error: エラーが発生した場合のみ記録。
-- crit: クリティカルなエラー（重大なエラー）。
+- debug: デバッグ用の詳細なログを記録
+- info: 情報レベルのログ
+- notice: 通知レベルのログ
+- warn: 警告レベルのログ
+- error: エラーが発生した場合のみ記録
+- crit: クリティカルなエラー（重大なエラー）
  
  ここでは warn が指定されているので、警告以上のエラー（警告、エラー、クリティカルエラー）が発生した際にログが記録される。
 
@@ -132,7 +132,7 @@ NginxのプロセスID（PID）ファイルの保存場所を指定する。
 PIDは、現在実行中のプロセスに一意に割り当てられるIDで、システムがプロセスを管理する際に使われる。
 Nginxの管理操作（再起動、停止など）を行う際に、このファイルからPIDを読み取り、対応するプロセスに対して操作を行う。
 
-## このセクション全体の役割
+## head全体の役割
 
 セキュリティ: user nginx; で非管理者権限のユーザーを指定することで、サーバーのセキュリティを向上させる。
 
@@ -142,7 +142,7 @@ Nginxの管理操作（再起動、停止など）を行う際に、このファ
 
 プロセス管理: pid ファイルは、Nginxの制御を行うために重要となる。
 
-# http.yaml
+# http.conf
 
 ## MIMEタイプの設定
 
@@ -188,62 +188,63 @@ application/json    json
 
 
 
-
-
-
-
-
-
-
-
-
-
 ## ログフォーマットの設定
 
-nginx
-
+```
 log_format main '$remote_addr - $remote_user [$time_local] "$request" '
                 '$status $body_bytes_sent "$http_referer" '
                 '"$http_user_agent" "$http_x_forwarded_for"';
+```
 
-    log_format main ...
-    main という名前のログフォーマットを定義しています。ログには以下の情報が含まれます：
-        $remote_addr: クライアントのIPアドレス
-        $remote_user: 認証されたユーザー名
-        $time_local: リクエストを受けた日時
-        $request: リクエストライン（メソッド、URI、プロトコル）
-        $status: HTTPステータスコード
-        $body_bytes_sent: 送信されたボディのバイト数
-        $http_referer: リファラー情報
-        $http_user_agent: ユーザーエージェント情報
-        $http_x_forwarded_for: プロキシ経由の場合の元のクライアントIPアドレス
+**log_format mainについて**
+
+main という名前のログフォーマットを定義しており、ログには以下の情報が含まれる。
+
+- $remote_addr: クライアントのIPアドレス
+- $remote_user: 認証されたユーザー名
+- $time_local: リクエストを受けた日時
+- $request: リクエストライン（メソッド、URI、プロトコル）
+- $status: HTTPステータスコード
+- $body_bytes_sent: 送信されたボディのバイト数
+- $http_referer: リファラー情報
+- $http_user_agent: ユーザーエージェント情報
+- $http_x_forwarded_for: プロキシ経由の場合の元のクライアントIPアドレス
+
+※気になること
+他にどのような変数があるか、全部をログに記載することはできるか？
+(一旦、他のものはChatGPTに聞くことで全体像を掴む)
+
 
 ## アクセスログの設定
 
-nginx
-
+```
 access_log /var/log/nginx/access.log main;
+```
 
-    access_log /var/log/nginx/access.log main;
-    アクセスログの出力先を /var/log/nginx/access.log に設定し、先ほど定義した main フォーマットを使用します。
+アクセスログの出力先を /var/log/nginx/access.log に設定し、先ほど定義した main フォーマットを使用する。
 
 ## ファイル送信および接続維持の設定
 
-nginx
-
+```
 sendfile on;
 keepalive_timeout 65;
+```
+**sendfile onについて**
 
-    sendfile on;
-    sendfile を有効にすると、カーネルの sendfile システムコールを使用して高速にファイルを送信できます。これにより、ユーザースペースとカーネルスペース間のデータコピーが削減され、パフォーマンスが向上します。
+sendfile を有効にすると、カーネルの sendfile システムコールを使用して高速にファイルを送信できる。
+これにより、ユーザースペースとカーネルスペース間のデータコピーが削減され、パフォーマンスが向上する。
 
-    keepalive_timeout 65;
-    クライアントとのアイドル状態の接続を65秒間維持します。これにより、同一クライアントからの複数リクエストが同じ接続で処理され、接続の再確立によるオーバーヘッドが減少します。
+keepalive_timeout 65;
+クライアントとのアイドル状態の接続を65秒間維持する。
+これにより、同一クライアントからの複数リクエストが同じ接続で処理され、接続の再確立によるオーバーヘッドが減少する。
+
+※気になること
+カーネルの sendfile システムコールとは？クライアントとのアイドル状態で65秒間で何が変わるかテストしたい。
+
 
 ## サーバーブロックの設定
 
-nginx
-
+```
 server {
     listen       80;
     server_name  localhost;
@@ -258,60 +259,62 @@ server {
         root   /usr/share/nginx/html;
     }
 }
+```
 
-    listen 80;
-    サーバーがポート80でリクエストを待ち受けます。ポート80はHTTPのデフォルトポートです。
+**listen 80; について**
+サーバーがポート80でリクエストを待ち受ける。
+ポート80はHTTPのデフォルトポート。
 
-    server_name localhost;
-    サーバーの名前を localhost に設定します。これにより、localhost というホスト名でアクセスされたリクエストをこのサーバーブロックが処理します。
+**server_name localhost;について**
+サーバーの名前を localhost に設定する。
+これにより、localhost というホスト名でアクセスされたリクエストをこのサーバーブロックが処理します。
+→ここは仮想マシンのIPに変更しないといけないかも
 
 ## ロケーションブロックの設定
 
-nginx
-
+```
 location / {
     root   /usr/share/nginx/html;
     index  index.html;
 }
+```
+**location / { ... } について**
+ルートパス / に対するリクエストを処理する。
 
-    location / { ... }
-    ルートパス / に対するリクエストを処理します。
 
-        root /usr/share/nginx/html;
-        ドキュメントルートを /usr/share/nginx/html に設定します。つまり、http://localhost/ へのリクエストは /usr/share/nginx/html/index.html を返します。
+```
+root /usr/share/nginx/html;
+index index.html;
+```
 
-        index index.html;
-        ディレクトリへのリクエスト（例：http://localhost/）時にデフォルトで index.html を返すよう指定します。
+ドキュメントルートを /usr/share/nginx/html に設定する。
+つまり、http://localhost/ へのリクエストは /usr/share/nginx/html/index.html を返す。
+
+
+ディレクトリへのリクエスト（例：http://localhost/）時にデフォルトで index.html を返すよう指定する。
+
+
+つまり、`docker-compose.yaml`で指定したvolumeとディレクトリは一致させておかなければならない。
+
 
 ## エラーページの設定
 
-nginx
-
+```
 error_page 500 502 503 504 /50x.html;
 location = /50x.html {
     root /usr/share/nginx/html;
 }
+```
 
-    error_page 500 502 503 504 /50x.html;
-    サーバー内部エラー（500系エラー）が発生した場合に /50x.html を表示するよう指定します。
+**error_page 500 502 503 504 /50x.html;について**
+サーバー内部エラー（500系エラー）が発生した場合に /50x.html を表示するよう指定する。
 
-    location = /50x.html { ... }
-    /50x.html への正確なリクエストを処理します。
-        root /usr/share/nginx/html;
-        エラーページのファイル 50x.html が /usr/share/nginx/html ディレクトリに存在することを指定します。
-
+**location = /50x.html { ... }について**
+/50x.html への正確なリクエストを処理する。
 
 
-
-
-
-
-
-
-
-
-
-
+**root /usr/share/nginx/html;について**
+エラーページのファイル 50x.html が /usr/share/nginx/html ディレクトリに存在することを指定します。
 
 
 
@@ -319,3 +322,8 @@ location = /50x.html {
 
 ## Nginx実行ユーザの指定方法と確認方法
 どういうシチュエーションで必要になるだろうか。
+
+# 気になることリスト
+カーネルの sendfile システムコールとは？クライアントとのアイドル状態で65秒間で何が変わるかテストしたい。
+
+他にどのような変数があるか、全部をログに記載することはできるか？
