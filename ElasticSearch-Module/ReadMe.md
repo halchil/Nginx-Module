@@ -15,3 +15,17 @@ driver: localは、Dockerがデフォルトで提供するローカルボリュ�
 
 特にカスタマイズされない場合は、local ドライバがデフォルトで使用される。
 
+## nginxのvolumeセクションとの違い
+
+### バインドマウント (Bind Mount)
+
+Nginxの設定は「バインドマウント」と呼ばれるもの。
+
+```
+volumes:
+  - ./nginx.conf:/etc/nginx/nginx.conf:ro  # カスタム設定を使用する場合
+  - ./html:/usr/share/nginx/html:ro  # 静的なHTMLファイルを提供する場合
+```
+`./nginx.conf:/etc/nginx/nginx.conf:ro: `ホスト側の ./nginx.conf ファイルをコンテナ内の `/etc/nginx/nginx.conf` に読み取り専用（ro）でマウントしている。
+これは、ローカルファイルを直接コンテナに反映させるためのバインドマウントの一例である。
+
